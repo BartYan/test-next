@@ -2,10 +2,13 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { Inter } from 'next/font/google';
 import styles from '@/styles/Home.module.css';
+import { useState, useEffect } from 'react';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
+  const [predictChord, setPredictChord] = useState();
+
   async function GetImage() {
     console.log('yo2');
     try {
@@ -60,31 +63,33 @@ export default function Home() {
     },
   };
 
-  async function fetchData2(data) {
-    const url = 'http://localhost:8000/api/predict';
+  useEffect(() => {
+    async function fetchData2(data) {
+      const url = 'http://localhost:8000/api/predict';
 
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        // mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-        // body: data,
-      });
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
 
-      if (!response.ok) {
-        throw new Error('HTTP error! Status: ' + response.status);
+        if (!response.ok) {
+          throw new Error('HTTP error! Status: ' + response.status);
+        }
+
+        const responseData = await response.json();
+        setPredictChord(responseData);
+        console.log('responseData4', responseData);
+      } catch (e) {
+        console.log('catch', e);
       }
-
-      const responseData = await response.json();
-      console.log('responseData4', responseData);
-    } catch (e) {
-      console.log('catch', e);
     }
-  }
-  fetchData2(data4);
+    fetchData2(data4);
+  }, []);
 
   return (
     <>
@@ -116,6 +121,12 @@ export default function Home() {
                 priority
               />
             </a>
+
+            {predictChord ? (
+              <div>{predictChord}</div>
+            ) : (
+              <div>Loading chords...</div>
+            )}
           </div>
         </div>
 
